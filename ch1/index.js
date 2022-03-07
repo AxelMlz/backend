@@ -25,14 +25,30 @@ var authors = [
     },
 ]
 
-app.get ("/",(req,res)=> {
+app.get ("/" &&"/authors",(req,res)=> {
     res.send("Authors API")
 })
 
-app.get ("/authors/1",(req,res)=> {
-    res.send(authors.name)
+app.get ("/authors/:id",(req,res)=> {
+    const id = authors[parseInt(req.params.id)-1];
+   let whoAuthors= res.json( `the author is ${id.name}, from ${id.nationality}`);
+
+if(!id){
+    res.json({message:`this author do not exist`})
+}
+res.send(whoAuthors);
 })
 
+app.get ("/authors/:id/books",(req,res)=> {
+    const id = authors[parseInt(req.params.id)-1];
+    if(id.books.length > 1){
+     let whichBook = res.json( `the books are ${id.books}`)
+    }else let whichBook =res.json( `the book is ${id.books}`);
+if(!id){
+    return res.json(`this book/s do not exist`)
+}
+res.send(whichBook)
+})
 
 app.listen(port, () => {
   console.log('Server started on port: ' + port);
