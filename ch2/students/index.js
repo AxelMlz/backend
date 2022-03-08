@@ -1,46 +1,51 @@
 const express = require('express');
 const app = express();
+app.use(express.json());
 const port = 8000;
 
 var students = [
     {
-        name: "Lawrence",
+        firstname: "Lawrence",
         lastname: "Nowell",
         nationality: "UK",
     },
     {
-        name: "William",
+        firstname: "William",
         lastname: "Shakespeare",
         nationality: "UK",
     },
     {
-        name: "Charles",
+        firstname: "Charles",
         lastname: "Dickens",
         nationality: "US",
     },
     {
-        name: "Oscar",
+        firstname: "Oscar",
         lastname: "Wilde",
         nationality: "UK",
     },
 ]
 
-app.get ("/" &&"/students",(req,res)=> {
+app.get ("/",(req,res)=> {
     res.send("Students API")
 })
 
-app.get ("/authors/:id",(req,res)=> {
-    const id = authors[parseInt(req.params.id)-1];
-   let whoAuthors= res.json( `the author is ${id.name}, from ${id.nationality}`);
+app.get ("/students",(req,res)=> {
+    res.json(students);
+ })
 
-if(!id){
-    res.json({message:`this student do not exist`})
-}
-res.send(whoAuthors);
+// if(!id){
+//     res.json({message:`this student do not exist`})
+// }
+//
+app.post ("/students",(req, res) =>{
+    students.push({
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        nationality: req.body.nationality,
+    })
+res.send(students)
 })
-
-res.send(whichBook)
-
 
 app.listen(port, () => {
   console.log('Server started on port: ' + port);
