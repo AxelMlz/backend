@@ -39,11 +39,7 @@ app.get ("/students",(req,res)=> {
 // }
 //
 app.post ("/students",(req, res) =>{
-    students.push({
-        firstname: req.body.firstname,
-        lastname: req.body.lastname,
-        nationality: req.body.nationality,
-    })
+    students.push(req.body)
 res.send(students)
 })
 
