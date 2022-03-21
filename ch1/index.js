@@ -1,6 +1,11 @@
 const express = require('express');
 const app = express();
 const port = 8000;
+const dotenv = require("dotenv");
+dotenv.config({
+	path: "./config.env",
+});
+const { Pool } = require("pg");
 
 var authors = [
     {
@@ -43,7 +48,7 @@ app.get ("/authors/:id/books",(req,res)=> {
     const id = authors[parseInt(req.params.id)-1];
     if(id.books.length > 1){
      let whichBook = res.json( `the books are ${id.books}`)
-    }else let whichBook =res.json( `the book is ${id.books}`);
+    }else {let whichBook =res.json( `the book is ${id.books}`)};
 if(!id){
     return res.json(`this book/s do not exist`)
 }
