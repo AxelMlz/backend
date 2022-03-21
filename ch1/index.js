@@ -46,20 +46,30 @@ app.get ("/authors", async (req,res)=> {
 	res.json(authors.rows);
 });
 
-//     res.send("Authors API")
-// })
-
 app.get ("/authors/:id", async (req,res)=> {
     // const id = authors[parseInt(req.params.id)-1];
-    const authors = await Postgres.query(
-        "SELECT * FROM authors WHERE authors.authors_id=1", [req.params.id]
-    );
-    res.json(authors.rows)
+    let authors;
+    try {
+        authors = await Postgres.query(
+			`SELECT * FROM authors WHERE authors.author_id=$1`,
+			[req.params.id]
+		);
+	} catch (err) {
+		return res.status(400).json({
+			message: "An error happened. Bad data received.",
+		});
+	}
+    res.json(authors.rows)})
+
+    // authors = await Postgres.query(
+    //     "SELECT * FROM authors WHERE authors.author_id=$1", [req.params.id]
+    //     );
+    //     console.log (authors);
 //    let whoAuthors= res.json( `the author is ${id.name}, from ${id.nationality}`);
 
-if(!req.params.id){
-    res.json({message:`this author do not exist`})
-}})
+// if(!req.params.id){
+//     res.json({message:`this author do not exist`})
+// }})
 // res.send(whoAuthors);
 // 
 
