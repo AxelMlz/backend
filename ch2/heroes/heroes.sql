@@ -13,13 +13,11 @@ CREATE TABLE heroes(
 INSERT INTO heroes(name, power, color, living, age) VALUES('Iron Man', '"money"', '"red"', FALSE, 46 );
 INSERT INTO heroes(name, power, color, living, age) VALUES('Thor', '"electricity", "worthy"', '"blue"', TRUE, 300);
 INSERT INTO heroes(name, power, color, living, age) VALUES('Daredevil', '"blind"', '"red"', TRUE, 30 );
-INSERT INTO heroes(name, power, color, living, age) VALUES('Venom', '"Alien symbiosis",
-            "king of Klyntars/symbiotes"', '"black"', TRUE, 35);
 
 SELECT * FROM heroes;
-SELECT name, nationality FROM authors WHERE authors.author_id=$1;
+SELECT name FROM heroes WHERE name=$1;
+INSERT INTO heroes(name, power, color, living, age) VALUES($1, $2, $3, $4, $5);
 SELECT power FROM heroes WHERE heroes.hero_id=$1;
 
 /**INSERT INTO <heroes>(power) VALUES (<values,>)
-INSERT INTO <heroes>(power) VALUES (<values,>, <values,>)
-
+INSERT INTO <heroes>(power) VALUES (<values,>, <values,>)**/

@@ -77,7 +77,6 @@ app.get ("/",debug, transformName,(req,res)=> {
 })
 // GET - Display the list of Heroes
 app.get ("/heroes", debug, transformName, async (req,res)=> {
-    let heroes
 	try {
 		heroes = await Postgres.query("SELECT * FROM heroes");
 	} catch (err) {
@@ -91,62 +90,81 @@ app.get ("/heroes", debug, transformName, async (req,res)=> {
 	res.json(heroes.rows);
  })
 
- app.get ("/heroes/:name", debug, transformName, (req, res)=>{
-    const hero = heroes.find((supes) =>{
-        return supes.name === req.params.name
-    })
-    res.send(hero)
+ app.get ("/heroes/:name", debug, transformName, async (req, res)=>{
+    try {heroes = await Postgres.query("SELECT * FROM heroes WHERE LOWER(name)=$1", [req.params.name]);
+	} catch (err) {
+		console.log(err);
+
+		return res.status(400).json({
+			message: "An error happened",
+		});
+	}
+    res.json(heroes.rows)
  })
 
  // POST - Add more Heores
-app.post ("/heroes", debug, transformName, (req, res)=>{
-    heroes.push(req.body)
+app.post ("/heroes", debug, transformName, async (req, res)=>{
+    try {heroes = await Postgres.query("INSERT INTO heroes(name, power, color, living, age) VALUES($1, $2, $3, $4, $5)");
+} catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+        message: "An error happened",
+    });
+}
     console.log("hero added")
-    res.send(heroes);
+    res.json(heroes.rows);
 })
 
-// app.get ("/heroes/:name/powers", debug, (req, res)=>{
-//     const powers = req.params.power
-//     res.send(powers)
-// })
+app.get ("/heroes/:name/powers", debug, (req, res)=>{
+    try {heroes = await Postgres.query("SELECT name FROM heroes WHERE LOWER(name)=$1", [req.params.name]);
+} catch (err) {
+    console.log(err);
 
-app.get ("/heroes/:name/powers", debug, transformName, (req, res)=>{
-    const powers = req.params.power
-    let matchHeroes = heroes.find(()=>{
-        return(
+    return res.status(400).json({
+        message: "An error happened",
+    });
+}
+res.json(heroes.rows.powers)
+})
+
+// app.get ("/heroes/:name/powers", debug, transformName, (req, res)=>{
+//     const powers = req.params.power
+//     let matchHeroes = heroes.find(()=>{
+//         return(
            
-            req.params.name.toLocaleLowerCase()
-            === matchHeroes.name.toLocaleLowerCase()
-            // res.send(heroes)
-        );
-    });
-    if (!matchHeroes) {
-        return res.json({
-          message: "This hero does not exist",
-        });
-      }
-    res.json(hero.power);
-      res.send("Power added!");
-    });
+//             req.params.name.toLocaleLowerCase()
+//             === matchHeroes.name.toLocaleLowerCase()
+//             // res.send(heroes)
+//         );
+//     });
+//     if (!matchHeroes) {
+//         return res.json({
+//           message: "This hero does not exist",
+//         });
+//       }
+//     res.json(hero.power);
+//       res.send("Power added!");
+//     });
     
  
 
-app.patch (`/heroes/:name/powers`, debug, transformName, (req, res)=>{
-   let matchHeroes = heroes.find(()=>{
-       return(
-        req.params.name.toLocaleLowerCase()
-        === matchHeroes.name.toLocaleLowerCase()
+// app.patch (`/heroes/:name/powers`, debug, transformName, (req, res)=>{
+//    let matchHeroes = heroes.find(()=>{
+//        return(
+//         req.params.name.toLocaleLowerCase()
+//         === matchHeroes.name.toLocaleLowerCase()
            
-       )
-   })
-   if (!matchHeroes) {
-    return res.json({
-      message: "This hero does not exist",
-    });
-  }
-  heroes.power.push(req.body.power);
-  res.send("Power added!");
-});
+//        )
+//    })
+//    if (!matchHeroes) {
+//     return res.json({
+//       message: "This hero does not exist",
+//     });
+//   }
+//   heroes.power.push(req.body.power);
+//   res.send("Power added!");
+// });
 
 app.get("*", (req, res) => {
     res.status(404).send("Did not found the info");
