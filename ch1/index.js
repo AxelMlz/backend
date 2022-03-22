@@ -50,16 +50,20 @@ app.get ("/authors/:id", async (req,res)=> {
     // const id = authors[parseInt(req.params.id)-1];
     let authors;
     try {
-        authors = await Postgres.query(
-			`SELECT * FROM authors WHERE authors.author_id=$1`,
-			[req.params.id]
-		);
-	} catch (err) {
+		authors = await Postgres.query("SELECT * FROM authors");
+	}
+    // try {
+    //     authors = await Postgres.query(
+	// 		"SELECT name, nationality FROM authors WHERE authors.author_id=$1",
+	// 		[req.params.id, req.params.name, req.params.nationality]
+	// 	)};
+	 catch (err) {
 		return res.status(400).json({
 			message: "An error happened. Bad data received.",
 		});
 	}
-    res.json(authors.rows)})
+    res.json(authors.rows.name)});
+    // res.json({message :`the author is ${req.body.name} from ${req.body.nationality}`});});
 
     // authors = await Postgres.query(
     //     "SELECT * FROM authors WHERE authors.author_id=$1", [req.params.id]
@@ -73,16 +77,28 @@ app.get ("/authors/:id", async (req,res)=> {
 // res.send(whoAuthors);
 // 
 
-app.get ("/authors/:id/books",(req,res)=> {
-    const id = authors[parseInt(req.params.id)-1];
-    if(id.books.length > 1){
-     let whichBook = res.json( `the books are ${id.books}`)
-    }else {let whichBook =res.json( `the book is ${id.books}`)};
-if(!id){
-    return res.json(`this book/s do not exist`)
-}
-res.send(whichBook)
-})
+app.get ("/authors/:id/books", async(req, res)=> {
+    let authors;
+    try {
+        authors = await Postgres.query(
+			"SELECT books FROM authors WHERE authors.author_id=$1",
+			[req.params.id]
+		);
+	} catch (err) {
+		return res.status(400).json({
+			message: "An error happened. Bad data received.",
+		});
+	}
+    res.json(authors.rows)})
+//     const id = authors[parseInt(req.params.id)-1];
+//     if(id.books.length > 1){
+//      let whichBook = res.json( `the books are ${id.books}`)
+//     }else {let whichBook =res.json( `the book is ${id.books}`)};
+// if(!id){
+//     return res.json(`this book/s do not exist`)
+// }
+// res.send(whichBook)
+// })
 
 app.listen(port, () => {
   console.log('Server started on port: ' + port);

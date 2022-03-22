@@ -14,8 +14,8 @@ INSERT INTO authors(name, nationality, books) VALUES('Charles Dickens', 'US', '"
 INSERT INTO authors(name, nationality, books) VALUES('Oscar Wilde', 'UK', '"The Picture of Dorian Gray", "The Importance of Being Earnest"');
 
 SELECT * FROM authors;
-SELECT * FROM authors WHERE authors.author_id=$1;
-
+SELECT name, nationality FROM authors WHERE authors.author_id=$1;
+SELECT books FROM authors WHERE authors.author_id=$1;
 
 
 

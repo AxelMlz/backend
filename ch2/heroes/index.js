@@ -1,46 +1,51 @@
 const express = require('express');
 const app = express();
-const port = 8000;
+const port = 8001;
 app.use(express.json());
-
-let heroes = 
-[
-    {
-        name: "Iron Man",
-        power: ["money"],
-        color: "red",
-        isAlive: false,
-        age: 46,
-        image: "https://blog.fr.playstation.com/tachyon/sites/10/2019/07/unnamed-file-18.jpg?resize=1088,500&crop_strategy=smart"
-    },
-    {
-        name: "Thor",
-        power: ["electricity", "worthy"],
-        color: "blue",
-        isAlive: true,
-        age: 300,
-        image: "https://www.bdfugue.com/media/catalog/product/cache/1/image/400x/17f82f742ffe127f42dca9de82fb58b1/9/7/9782809465761_1_75.jpg"
-    },
-    {
-        name: "Daredevil",
-        power: ["blind"],
-        color: "red",
-        isAlive: true,
-        age: 30,
-        image: "https://aws.vdkimg.com/film/2/5/1/1/251170_backdrop_scale_1280xauto.jpg"
-    },
-    {
-        name: "Venom",
-        power: [
-            "Alien symbiosis",
-            "king of Klyntars/symbiotes"
-        ],
-        color: "black",
-        isAlive: true,
-        age: "",
-        image: "none"
-    }
-]
+const dotenv = require("dotenv");
+dotenv.config({
+	path: "./config.env",
+});
+const { Pool } = require("pg");
+const Postgres = new Pool({ ssl: { rejectUnauthorized: false } });
+// let heroes = 
+// [
+//     {
+//         name: "Iron Man",
+//         power: ["money"],
+//         color: "red",
+//         isAlive: false,
+//         age: 46,
+//         image: "https://blog.fr.playstation.com/tachyon/sites/10/2019/07/unnamed-file-18.jpg?resize=1088,500&crop_strategy=smart"
+//     },
+//     {
+//         name: "Thor",
+//         power: ["electricity", "worthy"],
+//         color: "blue",
+//         isAlive: true,
+//         age: 300,
+//         image: "https://www.bdfugue.com/media/catalog/product/cache/1/image/400x/17f82f742ffe127f42dca9de82fb58b1/9/7/9782809465761_1_75.jpg"
+//     },
+//     {
+//         name: "Daredevil",
+//         power: ["blind"],
+//         color: "red",
+//         isAlive: true,
+//         age: 30,
+//         image: "https://aws.vdkimg.com/film/2/5/1/1/251170_backdrop_scale_1280xauto.jpg"
+//     },
+//     {
+//         name: "Venom",
+//         power: [
+//             "Alien symbiosis",
+//             "king of Klyntars/symbiotes"
+//         ],
+//         color: "black",
+//         isAlive: true,
+//         age: "",
+//         image: "none"
+//     }
+// ]
 // Middleware activated by every request
 function debug( req, res, next){
     console.log("requête reçue");
@@ -71,8 +76,19 @@ app.get ("/",debug, transformName,(req,res)=> {
     res.send("Heroes API")
 })
 // GET - Display the list of Heroes
-app.get ("/heroes", debug, transformName,(req,res)=> {
-    res.json(heroes);
+app.get ("/heroes", debug, transformName, async (req,res)=> {
+    let heroes
+	try {
+		heroes = await Postgres.query("SELECT * FROM heroes");
+	} catch (err) {
+		console.log(err);
+
+		return res.status(400).json({
+			message: "An error happened",
+		});
+	}
+
+	res.json(heroes.rows);
  })
 
  app.get ("/heroes/:name", debug, transformName, (req, res)=>{
