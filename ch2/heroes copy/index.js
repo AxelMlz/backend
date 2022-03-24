@@ -2,13 +2,8 @@ const express = require('express');
 const app = express();
 const port = 8001;
 app.use(express.json());
-const dotenv = require("dotenv");
-dotenv.config({
-	path: "./config.env",
-});
-const { Pool } = require("pg");
-const Postgres = new Pool({ ssl: { rejectUnauthorized: false } });
-
+const mongoose = require("mongoose");
+const Heroes = require("./models/heroesModel")
 // let heroes = 
 // [
 //     {
@@ -48,6 +43,16 @@ const Postgres = new Pool({ ssl: { rejectUnauthorized: false } });
 //     }
 // ]
 
+mongoose
+	.connect(
+		"mongodb+srv://axel_mlz:pMAywTH8XDi7JUf@database-backend.4wob9.mongodb.net/database-backend?retryWrites=true&w=majority",
+		{
+			useNewUrlParser: true,
+		}
+	)
+	.then(() => console.log("Connected to MongoDB"));
+
+
 // Middleware activated by every request
 function debug( req, res, next){
     console.log("requête reçue");
@@ -80,7 +85,7 @@ app.get ("/",debug, transformName,(req,res)=> {
 // GET - Display the list of Heroes
 app.get ("/heroes", debug, transformName, async (req,res)=> {
 	try {
-		heroes = await Postgres.query("SELECT * FROM heroes");
+		heroes = await Heroes;
 	} catch (err) {
 		console.log(err);
 
@@ -89,7 +94,7 @@ app.get ("/heroes", debug, transformName, async (req,res)=> {
 		});
 	}
 
-	res.json(heroes.rows);
+	res.json(heroes);
  })
 
  // GET - get a Hero from the list
@@ -106,18 +111,14 @@ app.get ("/heroes", debug, transformName, async (req,res)=> {
  })
 
  // POST - Add more Heroes
-app.post ("/heroes", debug, transformName, async (req, res)=>{
-    try {heroes = await Postgres.query("INSERT INTO heroes(name, power, color, living, age) VALUES($1, $2, $3, $4, $5)", [req.body.name, req.body.power, req.body.color, req.body.living, req.body.age]);
-} catch (err) {
-    console.log(err);
-
-    return res.status(400).json({
-        message: "An error happened",
-    });
-}
-    console.log()
-    res.send("hero added");
+app.post ("/heroes", debug, async (req, res)=>{
+    try{ await Heroes.create(req.body)
+		res.json(Heroes);
+	}catch{res.status(201).json({
+        message: "User created",
+    })};
 })
+    
 
 // PATCH - Add Powers to a Hero
 app.patch ("/heroes/:name", debug, transformName, async (req, res)=>{
