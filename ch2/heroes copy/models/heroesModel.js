@@ -4,7 +4,7 @@ const heroesSchema = new mongoose.Schema({
     heroName: {
         type: String,
         required: true,
-        unique: true,
+       
         maxLength: 30,
     },
     power: {
@@ -16,8 +16,14 @@ const heroesSchema = new mongoose.Schema({
         required: true,
         maxLength: 30,
     },
-    isAlive: Boolean,
-    age: Number,
+    isAlive:{ 
+        type: Boolean,
+        required: true,
+    },
+    age: {
+        type: Number,
+        required: true
+    },
 })
 
 const Heroes = mongoose.model("Heroes", heroesSchema);

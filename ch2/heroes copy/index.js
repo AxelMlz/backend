@@ -6,46 +6,43 @@ const mongoose = require("mongoose");
 const Heroes = require("./models/heroesModel")
 // let heroes = 
 // [
-//     {
-//         name: "Iron Man",
-//         power: ["money"],
-//         color: "red",
-//         isAlive: false,
-//         age: 46,
-//         image: "https://blog.fr.playstation.com/tachyon/sites/10/2019/07/unnamed-file-18.jpg?resize=1088,500&crop_strategy=smart"
-//     },
-//     {
-//         name: "Thor",
-//         power: ["electricity", "worthy"],
-//         color: "blue",
-//         isAlive: true,
-//         age: 300,
-//         image: "https://www.bdfugue.com/media/catalog/product/cache/1/image/400x/17f82f742ffe127f42dca9de82fb58b1/9/7/9782809465761_1_75.jpg"
-//     },
-//     {
-//         name: "Daredevil",
-//         power: ["blind"],
-//         color: "red",
-//         isAlive: true,
-//         age: 30,
-//         image: "https://aws.vdkimg.com/film/2/5/1/1/251170_backdrop_scale_1280xauto.jpg"
-//     },
-//     {
-//         name: "Venom",
-//         power: [
-//             "Alien symbiosis",
-//             "king of Klyntars/symbiotes"
-//         ],
-//         color: "black",
-//         isAlive: true,
-//         age: "",
-//         image: "none"
-//     }
+    // {
+    //     name: "Iron Man",
+    //     power: ["money"],
+    //     color: "red",
+    //     isAlive: false,
+    //     age: 46,
+    //     image: "https://blog.fr.playstation.com/tachyon/sites/10/2019/07/unnamed-file-18.jpg?resize=1088,500&crop_strategy=smart"
+    // },
+    // {
+    //     name: "Thor",
+    //     power: ["electricity", "worthy"],
+    //     color: "blue",
+    //     isAlive: true,
+    //     age: 300,
+    // },
+    // {
+    //     "heroName": "Daredevil",
+    //     "power": ["blind"],
+    //     "color": "red",
+    //     "isAlive": true,
+    //     "age": 30
+    // },
+    // {
+    //     name: "Venom",
+    //     power: [
+    //         "Alien symbiosis",
+    //         "king of Klyntars/symbiotes"
+    //     ],
+    //     color: "black",
+    //     isAlive: true,
+    //     age: "",
+    // }
 // ]
 
 mongoose
 	.connect(
-		"mongodb+srv://axel_mlz:pMAywTH8XDi7JUf@database-backend.4wob9.mongodb.net/database-backend?retryWrites=true&w=majority",
+		"mongodb+srv://axel_mlz:pMAywTH8XDi7JUf@database-backend.4wob9.mongodb.net/heroes?retryWrites=true&w=majority",
 		{
 			useNewUrlParser: true,
 		}
@@ -84,8 +81,9 @@ app.get ("/",debug, transformName,(req,res)=> {
 })
 // GET - Display the list of Heroes
 app.get ("/heroes", debug, transformName, async (req,res)=> {
-	try {
-		heroes = await Heroes;
+	try { 
+		let heroes= await Heroes.find();
+		res.json(heroes);
 	} catch (err) {
 		console.log(err);
 
@@ -94,12 +92,14 @@ app.get ("/heroes", debug, transformName, async (req,res)=> {
 		});
 	}
 
-	res.json(heroes);
+
  })
 
  // GET - get a Hero from the list
  app.get ("/heroes/:name", debug, transformName, async (req, res)=>{
-    try {heroes = await Postgres.query("SELECT * FROM heroes WHERE LOWER(name)=$1", [req.params.name]);
+    try {
+		let heroes = await Heroes.findOne({heroName : req.params.name})
+		res.json(heroes)
 	} catch (err) {
 		console.log(err);
 
@@ -107,22 +107,32 @@ app.get ("/heroes", debug, transformName, async (req,res)=> {
 			message: "An error happened",
 		});
 	}
-    res.json(heroes.rows)
  })
 
  // POST - Add more Heroes
+// app.post ("/heroes", debug, async (req, res)=>{
+//     try{ await Heroes.create(req.body)
+// 		res.json(Heroes);
+// 	}catch{res.status(400).json({
+//         message: "An error happened"})
+//     }zeh
+// 	;
+// })
+
+ // POST - Add more Heroes
 app.post ("/heroes", debug, async (req, res)=>{
-    try{ await Heroes.create(req.body)
-		res.json(Heroes);
-	}catch{res.status(201).json({
-        message: "User created",
-    })};
-})
+    
+		try{await Heroes.create(req.body)
+		res.json(Heroes)
+	}catch{res.status(400).json({
+        message: "An error happened"});
+}})
     
 
 // PATCH - Add Powers to a Hero
 app.patch ("/heroes/:name", debug, transformName, async (req, res)=>{
-    try {heroes = await Postgres.query("INSERT INTO heroes (powers) VALUES($1)", [req.body.power], [req.params.name]);
+    try {
+		let heroes = await Heroes.updateOne(req.params.id, { $push: { power: req.body } });
 } catch (err) {
     console.log(err);
 
@@ -132,6 +142,21 @@ app.patch ("/heroes/:name", debug, transformName, async (req, res)=>{
 }
     console.log()
     res.send("power added");
+})
+
+// DELETE - Delete a Hero
+app.delete ("/heroes/:id", debug, transformName, async (req, res)=>{
+    try {
+		let heroes = await Heroes.deleteOne({_id : req.params.id})
+		console.log ("Hero blipped");
+		res.json(heroes)
+} catch (err) {
+    console.log(err);
+
+    return res.status(400).json({
+        message: "An error happened"
+    });
+}
 })
 
 // GET - Powers from the Name
