@@ -121,8 +121,8 @@ app.get ("/heroes", debug, transformName, async (req,res)=> {
 
  // POST - Add more Heroes
 app.post ("/heroes", debug, async (req, res)=>{
-    
-		try{await Heroes.create(req.body)
+    try{
+		await Heroes.create(req.body)
 		res.json(Heroes)
 	}catch{res.status(400).json({
         message: "An error happened"});
@@ -130,9 +130,9 @@ app.post ("/heroes", debug, async (req, res)=>{
     
 
 // PATCH - Add Powers to a Hero
-app.patch ("/heroes/:name", debug, transformName, async (req, res)=>{
+app.patch ("/heroes/:id", debug, transformName, async (req, res)=>{
     try {
-		let heroes = await Heroes.updateOne(req.params.id, { $push: { power: req.body } });
+		let heroes = await Heroes.updateOne({id : req.params.id}, { $push: { power: req.body.power } });
 } catch (err) {
     console.log(err);
 
@@ -161,7 +161,9 @@ app.delete ("/heroes/:id", debug, transformName, async (req, res)=>{
 
 // GET - Powers from the Name
 app.get ("/heroes/:name/powers", debug, transformName, async(req, res)=>{
-    try {heroes = await Postgres.query("SELECT * FROM heroes WHERE LOWER(name)=$1", [req.params.name]);
+    try {
+		let heroes = await Heroes.findOne({ name :req.params.name});
+		res.json(heroes.power)
 	} catch (err) {
 		console.log(err);
 
@@ -169,7 +171,6 @@ app.get ("/heroes/:name/powers", debug, transformName, async(req, res)=>{
 			message: "An error happened",
 		});
 	}
-    res.json(heroes.rows[0].power)
  })
 
 // app.get ("/heroes/:name/powers", debug, transformName, (req, res)=>{
