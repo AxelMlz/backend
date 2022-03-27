@@ -3,7 +3,7 @@ const app = express();
 const port = 8001;
 app.use(express.json());
 const mongoose = require("mongoose");
-const Heroes = require("./models/heroesModel")
+const Heroes = require("../../heroes/src/models/heroesModel")
 // let heroes = 
 // [
     // {
@@ -42,7 +42,7 @@ const Heroes = require("./models/heroesModel")
 
 mongoose
 	.connect(
-		"mongodb+srv://axel_mlz:pMAywTH8XDi7JUf@database-backend.4wob9.mongodb.net/heroes?retryWrites=true&w=majority",
+		"mongodb+srv://axel_mlz:pMAywTH8XDi7JUf@database-backend.4wob9.mongodb.net/database-backend?retryWrites=true&w=majority",
 		{
 			useNewUrlParser: true,
 		}
@@ -58,7 +58,10 @@ function debug( req, res, next){
 // Middleware to lowercase
 function transformName(req, _res, next) {
 	if (req.body.name) {
-		req.body.name = req.body.name.toLowerCase();
+		req.body.name = req.body.name.toLowerCase().replace(" ", "-");
+	}
+	else if (req.params.name) {
+		req.params.name = req.params.name.toLowerCase().replace(" ", "-");
 	}
 	next();
 }
@@ -132,20 +135,20 @@ app.post ("/heroes", debug, async (req, res)=>{
 // PATCH - Add Powers to a Hero
 app.patch ("/heroes/:id", debug, transformName, async (req, res)=>{
     try {
-		let heroes = await Heroes.updateOne({id : req.params.id}, { $push: { power: req.body.power } });
-} catch (err) {
-    console.log(err);
+		let heroes = await Heroes.updateOne({_id : req.params.id}, { $push: { power: req.body.power } 
+	});
+	} catch (err) {
+		console.log(err);
 
-    return res.status(400).json({
-        message: "An error happened",
-    });
-}
-    console.log()
+		return res.status(400).json({
+			message: "An error happened",
+		});
+	}
     res.send("power added");
 })
 
 // DELETE - Delete a Hero
-app.delete ("/heroes/:id", debug, transformName, async (req, res)=>{
+app.delete ("/heroes/:id", debug, async (req, res)=>{
     try {
 		let heroes = await Heroes.deleteOne({_id : req.params.id})
 		console.log ("Hero blipped");
@@ -160,9 +163,10 @@ app.delete ("/heroes/:id", debug, transformName, async (req, res)=>{
 })
 
 // GET - Powers from the Name
-app.get ("/heroes/:name/powers", debug, transformName, async(req, res)=>{
+app.get ("/heroes/:name/powers", debug, async(req, res)=>{
+	console.log(req.params.name)
     try {
-		let heroes = await Heroes.findOne({ name :req.params.name});
+		let heroes = await Heroes.findOne({ heroName :req.params.name});
 		res.json(heroes.power)
 	} catch (err) {
 		console.log(err);

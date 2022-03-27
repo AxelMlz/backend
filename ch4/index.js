@@ -2,48 +2,26 @@ const express = require('express');
 const app = express();
 const port = 8000;
 
-var heroes = 
-[
-    {
-        name: "Iron Man",
-        power: ["money"],
-        color: "red",
-        isAlive: false,
-        age: 46,
-        image: "https://blog.fr.playstation.com/tachyon/sites/10/2019/07/unnamed-file-18.jpg?resize=1088,500&crop_strategy=smart"
-    },
-    {
-        name: "Thor",
-        power: ["electricity", "worthy"],
-        color: "blue",
-        isAlive: true,
-        age: 300,
-        image: "https://www.bdfugue.com/media/catalog/product/cache/1/image/400x/17f82f742ffe127f42dca9de82fb58b1/9/7/9782809465761_1_75.jpg"
-    },
-    {
-        name: "Daredevil",
-        power: ["blind"],
-        color: "red",
-        isAlive: true,
-        age: 30,
-        image: "https://aws.vdkimg.com/film/2/5/1/1/251170_backdrop_scale_1280xauto.jpg"
-    }
-]
+
 //Middleware activated by every request
 function debug( req, res, next){
     console.log("requête reçue");
     next()
 }
+
+//Router
+const usersRouter = require("./routers/usersRouter")
+
 //Name of the API
 app.get ("/",debug,(req,res)=> {
-    res.send("Heroes API")
+    res.send("Validation")
 })
 
-app.get ("/heroes", debug,(req,res)=> {
+app.post ("/users", debug,(req,res)=> {
     res.json(heroes);
  })
 
- app.get ("/heroes/:name", debug, (req, res)=>{
+ app.get ("/users/:username", debug, (req, res)=>{
     const hero = heroes.find((supes) =>{
         return supes.name === req.params.name
     })
